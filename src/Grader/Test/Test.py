@@ -1,7 +1,6 @@
 
 class Test:
-    def __init__(self, name, input_path, output_path):
-        self.name: str = name
+    def __init__(self, input_path, output_path):
         self.input_path: str = input_path
         self.output_path: str = output_path
 

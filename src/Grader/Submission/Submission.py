@@ -5,8 +5,6 @@ from subprocess import Popen, PIPE
 
 from typing import List
 
-from Grader.Test.Test import Test
-
 
 class Submission:
     def __init__(self, submission_path: str, entry_point: str):
@@ -14,6 +12,7 @@ class Submission:
         self.valid: bool = None
         self.entry_point = entry_point
         self.submission_path = submission_path
+        self.feedback = "DEFAULT FEEDBACK"
         self.student_id: str = self.get_student_id()
 
     def ready(self) -> bool:
@@ -133,7 +132,7 @@ class Submission:
             return
         bin_dir = os.path.join(self.submission_path, "grading", "bin")
         entry_class = self.entry_point.replace(".java", "")
-        output_path = os.path.join(self.submission_path, "output",  os.path.basename(input_path).replace(".in", ".out"))
+        output_path = os.path.join(self.submission_path, "output", os.path.basename(input_path).replace(".in", ".out"))
         run_process = Popen(
             ["java", "-cp", bin_dir, entry_class, input_path, output_path],
             shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)

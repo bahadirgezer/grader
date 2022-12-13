@@ -6,6 +6,15 @@ from Grader.Test.Test import Test
 
 
 class Grader:
+    def __init__(self, settings):
+        self.submission_dir: str = settings["submission_dir"]
+        self.entry_point: str = settings["entry_point"]
+        self.input_dir: str = settings["input_dir"]
+        self.output_dir: str = settings["output_dir"]
+        self.timeout: int = settings["timeout"]
+        self.submissions: List[Submission] = []
+        self.tests: List[Test] = []
+
     def __init__(self, submission_dir, entry_point, input_dir, output_dir, timeout):
         self.submission_dir: str = submission_dir
         self.entry_point: str = entry_point
@@ -15,6 +24,11 @@ class Grader:
         self.submissions: List[Submission] = []
         self.tests: List[Test] = []
 
+    def init(self) -> 'Grader':
+        self.init_submissions()
+        self.init_tests()
+        return self
+
     def init_submissions(self):
         for student in os.listdir(self.submission_dir):
             submission_path = os.path.join(self.submission_dir, student)
@@ -22,6 +36,11 @@ class Grader:
                 self.submissions.append(Submission(submission_path, self.entry_point))
 
     def init_tests(self):
+        for test in os.listdir(self.input_dir):
+            input_path = os.path.join(self.input_dir, test)
+            output_path = os.path.join(self.output_dir, test.replace(".in", ".out"))
+            if os.path.isfile(input_path) and os.path.isfile(output_path):
+                self.tests.append(Test(input_path, output_path))
         pass
 
     def run(self):
@@ -32,18 +51,16 @@ class Grader:
             print(submission.student_id)
             if not self.generated(submission):
                 self.generate(submission)
+            if not self.graded(submission):
+                self.grade(submission)
 
     def generate(self, submission):
-        # create a directory for the generated output
-        # run the submission with the input files
-        # save the output to the generated output directory
         generated_path = os.path.join(submission.submission_path, "output")
         if not os.path.exists(generated_path):
             os.mkdir(generated_path)
         for test in self.tests:
             submission.run(test.input_path)
 
-    # check if the generated outputs exist for each test, return True if they do
     def generated(self, submission):
         generated_path = os.path.join(submission.submission_path, "output")
         if not os.path.exists(generated_path):
@@ -54,3 +71,12 @@ class Grader:
             if not os.path.exists(output_path):
                 return False
         return True
+
+    def graded(self, submission):
+        return True
+
+    def grade(self, submission):
+        pass
+
+    def extract(self):
+        return self.submissions

@@ -2,6 +2,7 @@
   "submission_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/p1-submissions",
   "input_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/input",
   "output_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/output",
-  "timeout": 60,
-  "entry_point": "Project1.java"
+  "results_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/results",
+  "entry_point": "Project1.java",
+  "timeout": 60
 }
