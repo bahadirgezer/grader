@@ -1,0 +1,7 @@
+{
+  "submission_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/p1-submissions",
+  "submission_format": "p1-submissions/{student_name}/Project1/src/*.java",
+  "input_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/input",
+  "output_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/output",
+  "timeout": 60
+}
