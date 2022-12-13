@@ -1,5 +1,7 @@
 import os
+import re
 import shutil
+import subprocess
 import zipfile
 from subprocess import Popen, PIPE
 
@@ -8,11 +10,11 @@ from typing import List
 
 class Submission:
     def __init__(self, submission_path: str, entry_point: str):
-        self.points = 0
+        self.points: int = 0
         self.valid: bool = None
         self.entry_point = entry_point
         self.submission_path = submission_path
-        self.feedback = "DEFAULT FEEDBACK"
+        self.feedback: dict = dict()
         self.student_id: str = self.get_student_id()
 
     def ready(self) -> bool:
@@ -127,16 +129,29 @@ class Submission:
         os.chdir(original_dir)
         return
 
-    def run(self, input_path: str):
+    def run(self, input_path: str, timeout: int = 4):
+        case_name = os.path.basename(input_path).replace(".in", "")
         if not self.valid:
             return
+        original_dir = os.getcwd()
         bin_dir = os.path.join(self.submission_path, "grading", "bin")
+        os.chdir(bin_dir)
         entry_class = self.entry_point.replace(".java", "")
-        output_path = os.path.join(self.submission_path, "output", os.path.basename(input_path).replace(".in", ".out"))
-        run_process = Popen(
-            ["java", "-cp", bin_dir, entry_class, input_path, output_path],
-            shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        run_process.wait()
+        output_path = os.path.join(self.submission_path, "output",
+                                   os.path.basename(input_path).replace(".in", ".out"))
+        try:
+            subprocess.run(
+                ["java", entry_class, input_path, output_path],
+                stdout=PIPE, stderr=PIPE, timeout=timeout, check=True)
+        except subprocess.CalledProcessError as failed:
+            # parse the stderr output to identify the error
+            error_msg = parse_stderr(failed.stderr.decode("utf-8"))
+            self.feedback[case_name] = \
+                f"Runtime Error: {error_msg}."
+        except subprocess.TimeoutExpired:
+            self.feedback[case_name] = \
+                f"Timed out after {timeout} seconds."
+        os.chdir(original_dir)
         return
 
     def compiled(self) -> bool:
@@ -144,3 +159,31 @@ class Submission:
             return False
         grading_dir = os.path.join(self.submission_path, "grading")
         return os.path.exists(os.path.join(grading_dir, "bin", self.entry_point.replace(".java", ".class")))
+
+    # check if the source code contains any java.util.LinkedList, java.util.ArrayList imports
+    def check_for_illegal_imports(self) -> bool:
+        for file in self.find_files(".java"):
+            with open(file, "r") as f:
+                for line in f:
+                    if "import java.util.LinkedList" in line or "import java.util.ArrayList" in line:
+                        return True
+        return False
+
+
+def parse_stderr(stderr: str) -> str:
+    # Search for common error patterns in the output
+    match = re.search(r'(?<=Exception: ).*', stderr)
+    if match:
+        return match.group(0)  # Return the matched exception message
+
+    match = re.search(r'(?<=error: ).*', stderr)
+    if match:
+        return match.group(0)  # Return the matched error message
+
+    match = re.search(r'(?<=Exception in thread ").*(?=")', stderr)
+    if match:
+        thread_name = match.group(0)  # Extract the thread name
+        # Return a custom error message with the thread name and some details
+        return f"Runtime error in thread {thread_name}: check the stderr output for more details"
+
+    return "Unknown error"  # Return a default error message
