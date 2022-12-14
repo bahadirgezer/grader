@@ -35,7 +35,7 @@ class Test:
             return False
         for expected_line, actual_line in zip(expected_lines, actual_lines):
             if expected_line != actual_line:
-                submission.feedback[case_name] = "Expected: {expected}\n  Actual: {actual}".format(
+                submission.feedback[case_name] = "Expected: {expected}, Actual: {actual}".format(
                     expected=expected_line, actual=actual_line)
                 return False
         submission.feedback[case_name] = "Passed."

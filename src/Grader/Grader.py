@@ -50,6 +50,10 @@ class Grader:
                 continue
             print("{id} \033[3mprocessing...\033[0m".format(id=submission.student_id))
 
+            if not submission.valid:
+                self.grade(submission)
+                continue
+
             if not self.generated(submission):
                 self.generate(submission)
 

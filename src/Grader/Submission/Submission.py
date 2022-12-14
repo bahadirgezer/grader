@@ -129,7 +129,7 @@ class Submission:
         os.chdir(original_dir)
         return
 
-    def run(self, input_path: str, timeout: int = 4):
+    def run(self, input_path: str, timeout: int = 5):
         case_name = os.path.basename(input_path).replace(".in", "")
         if not self.valid:
             return
@@ -150,7 +150,7 @@ class Submission:
                 f"Runtime Error: {error_msg}."
         except subprocess.TimeoutExpired:
             self.feedback[case_name] = \
-                f"Timed out after {timeout} seconds."
+                f"Timed out after 15 seconds."
         os.chdir(original_dir)
         return
 

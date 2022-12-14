@@ -1,3 +1,4 @@
+from math import floor
 from typing import List
 
 from Grader.Grader import Grader
@@ -19,13 +20,13 @@ def write_grades(grades: List[Submission]):
             if feedback == "\"\"\"\"":
                 feedback = "Incomplete or invalid submission. Please check your submission file and the submission " \
                            "instructions for more details. "
-            f.write(f"{student_id},{grade.points},{feedback}\n")
+            f.write(f"{student_id},{floor(grade.points)},{feedback}\n")
 
 
 def format_feedback(feedback: dict) -> str:
     formatted = []
     for key, value in feedback.items():
-        feedback[key] = value.replace(",", ";")
+        # feedback[key] = value.replace(",", ";")
         formatted += [f"{key}: {value}"]
     # add leading and trailing double quotes
     formatted.sort()
@@ -40,8 +41,31 @@ def rename_submissions():
             os.rename(submission_path, submission_path.replace(" ", "_"))
 
 
+# open the csv file check each student id
+def valid_line(line):
+    student_id = line.split(",")[0]
+    if student_id.isdigit() and len(student_id) == 10:
+        return True
+    return False
+
+
+def verify_grades():
+    # Read the entire file into memory
+    with open('grades.csv', 'r') as infile:
+        lines = infile.readlines()
+
+    # Create a new list of lines that meet your conditions
+    new_lines = [line for line in lines if valid_line(line)]
+
+    # Write the new list of lines back to the original file
+    with open('grades.csv', 'w') as outfile:
+        outfile.write("Student ID,Grade,Feedback\n")
+        outfile.writelines(new_lines)
+
+
 if __name__ == '__main__':
     # rename_submissions()
     grader = Grader(SETTINGS).initialize()
     grader.run()
     write_grades(grader.submissions)
+    verify_grades()
