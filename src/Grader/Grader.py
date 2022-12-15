@@ -1,4 +1,5 @@
 import os
+import json
 from typing import List
 
 from Grader.Submission.Submission import Submission
@@ -27,14 +28,13 @@ class Grader:
                 self.submissions.append(Submission(submission_path, self.entry_point))
 
     def init_tests(self):
-        for test in os.listdir(self.input_dir):
+        for test in sorted(os.listdir(self.input_dir)):
             if test.startswith("."):
                 continue
             input_path = os.path.join(self.input_dir, test)
             output_path = os.path.join(self.output_dir, test.replace(".in", ".out"))
             if os.path.isfile(input_path) and os.path.isfile(output_path):
                 self.tests.append(Test(input_path, output_path))
-        pass
 
     def run(self):
         c = 0
@@ -46,6 +46,7 @@ class Grader:
             if not submission.compiled():
                 submission.ready()
                 submission.compile()
+
             if submission.student_id == "INVALID":
                 continue
             print("{id} \033[3mprocessing...\033[0m".format(id=submission.student_id))
@@ -59,9 +60,13 @@ class Grader:
 
             self.grade(submission)
 
-            # print if there are check_for_illegal_imports() return true, if not don't print anything
-            if submission.check_for_illegal_imports():
-                print("Illegal imports found in {id}".format(id=submission.student_id))
+            print(json.dumps(submission.feedback))
+            print(submission.points)
+
+            if not self.intact_input_files():
+                # copy the input files from the ../backup folder to the ../input folder
+                for test in self.tests:
+                    os.system("cp " + test.input_path.replace("inputs", "backup") + " " + test.input_path)
 
     def generate(self, submission):
         generated_path = os.path.join(submission.submission_path, "output")
@@ -69,8 +74,7 @@ class Grader:
             os.mkdir(generated_path)
         for test in self.tests:
             if not os.path.exists(os.path.join(generated_path, os.path.basename(test.input_path))):
-                # submission.run(test.input_path, self.timeout)
-                submission.run(test.input_path)
+                submission.run(test.input_path, self.timeout)
 
     def generated(self, submission):
         generated_path = os.path.join(submission.submission_path, "output")
@@ -92,3 +96,16 @@ class Grader:
         submission.points += 10
         for test in self.tests:
             submission.points += points_per_test * test.grade(submission)
+
+    def clear(self):
+        for submission in self.submissions:
+            submission.clear()
+
+    # check if the input files are the same sizes as the copy of the input files in the ../backup folder
+    def intact_input_files(self):
+        for test in self.tests:
+            # check if the input file is the same size as the copy of the input file in the ../backup folder
+            if os.path.getsize(test.input_path) != os.path.getsize(test.input_path.replace("inputs", "backup")):
+                print("input file size mismatch: " + test.input_path)
+                return False
+        return True

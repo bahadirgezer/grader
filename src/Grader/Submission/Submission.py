@@ -150,7 +150,7 @@ class Submission:
                 f"Runtime Error: {error_msg}."
         except subprocess.TimeoutExpired:
             self.feedback[case_name] = \
-                f"Timed out after 15 seconds."
+                f"Timed out after {timeout} seconds."
         os.chdir(original_dir)
         return
 

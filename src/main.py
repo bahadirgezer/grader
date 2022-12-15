@@ -8,29 +8,43 @@ import os
 
 SETTINGS: dict = json.load(open("resources/settings.json"))
 
-
+'''
 def write_grades(grades: List[Submission]):
     with open("grades.csv", "w") as f:
         f.write("Student ID,Grade,Feedback\n")
         for grade in grades:
-            student_id = grade.student_id.replace("p1_", "")
-            student_id = student_id.replace("P1_", "")
+            student_id = grade.student_id.replace("p3_", "")
+            student_id = student_id.replace("P3_", "")
             # new line characters inside the feedback will break the csv file, fix it
             feedback = format_feedback(grade.feedback)
             if feedback == "\"\"\"\"":
                 feedback = "Incomplete or invalid submission. Please check your submission file and the submission " \
                            "instructions for more details. "
-            f.write(f"{student_id},{floor(grade.points)},{feedback}\n")
+            f.write(f"{student_id},{round(grade.points, 2)},{feedback}\n")
+'''
+
+
+def write_grades(grades: List[Submission]):
+    with open("grades.csv", "w") as f:
+        f.write("Student ID,Grade,Feedback\n")
+        for grade in grades:
+            student_id = grade.student_id.replace("p3_", "")
+            student_id = student_id.replace("P3_", "")
+            # new line characters inside the feedback will break the csv file, fix it
+            feedback = format_feedback(grade.feedback)
+            if grade.points == 0:
+                feedback = "Incomplete or invalid submission. Please check your submission file and the submission " \
+                           "instructions for more details. "
+            f.write(f"{student_id},{round(grade.points, 2)},{feedback}\n")
 
 
 def format_feedback(feedback: dict) -> str:
     formatted = []
     for key, value in feedback.items():
-        # feedback[key] = value.replace(",", ";")
         formatted += [f"{key}: {value}"]
     # add leading and trailing double quotes
     formatted.sort()
-    return "\"\"" + json.dumps(formatted)[1:-1].replace(",", ";") + "\"\""
+    return json.dumps(formatted)[1:-1].replace(",", ";")
 
 
 def rename_submissions():
@@ -66,6 +80,9 @@ def verify_grades():
 if __name__ == '__main__':
     # rename_submissions()
     grader = Grader(SETTINGS).initialize()
+    grader.clear()
     grader.run()
     write_grades(grader.submissions)
     verify_grades()
+
+

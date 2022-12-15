@@ -1,8 +1,7 @@
 {
-  "submission_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/p1-submissions",
-  "input_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/input",
-  "output_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/output",
-  "results_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project1/submissions/testing/results",
-  "entry_point": "Project1.java",
+  "submission_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project3/submissions/p3-submissions",
+  "input_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project3/CMPE250_p3/src/resources/grading/inputs",
+  "output_dir": "/Users/gezer/_boun/5.Donem/250Assistant/project3/CMPE250_p3/src/resources/grading/outputs",
+  "entry_point": "Project3.java",
   "timeout": 60
 }
