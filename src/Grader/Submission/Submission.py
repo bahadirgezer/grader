@@ -125,6 +125,11 @@ class Submission:
         compile_command = "javac -d bin *.java"
         compile_process = Popen(compile_command, shell=True, stdout=PIPE, stderr=PIPE)
         compile_process.wait()
+        compile_stdout, compile_stderr = compile_process.communicate()
+        compile_stderr = compile_stderr.decode("utf-8")
+        if compile_stderr != "":
+            print("compile error: " + compile_stderr)
+
         self.valid = os.path.exists(os.path.join(grading_dir, "bin", self.entry_point.replace(".java", ".class")))
         os.chdir(original_dir)
         return
@@ -186,4 +191,5 @@ def parse_stderr(stderr: str) -> str:
         # Return a custom error message with the thread name and some details
         return f"Runtime error in thread {thread_name}: check the stderr output for more details"
 
+    print("run stderr:", stderr)
     return "Unknown error"  # Return a default error message

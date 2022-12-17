@@ -39,6 +39,9 @@ class Grader:
     def run(self):
         c = 0
         for submission in self.submissions:
+            if not submission.student_id == "p3_2020400111":
+                continue
+
             c += 1
             if c > 10:
                 pass
